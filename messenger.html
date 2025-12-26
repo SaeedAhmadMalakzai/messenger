@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>SaeedsChat Messenger</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/all.min.css') }}">
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      referrerpolicy="no-referrer" />
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        display: flex;
+        height: 100vh;
+        font-family: 'Segoe UI', sans-serif;
+        background-color: #000;
+        color: #21e6c1;
+    }
+    .users-list, .chat-area, .profile-settings {
+        height: 100%;
+        overflow-y: auto;
+        padding: 1rem;
+    }
+    .users-list {
+        width: 35%;
+        border-right: 1px solid #333;
+    }
+    .chat-area {
+        width: 35%;
+        border-right: 1px solid #333;
+        display: flex;
+        flex-direction: column;
+    }
+    .profile-settings {
+        width: 30%;
+        background-color: #111;
+    }
+    .status-title {
+        font-weight: bold;
+        margin-top: 1rem;
+        font-size: 1.2rem;
+        color: #21e6c1;
+    }
+    .user {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #222;
+        cursor: pointer;
+    }
+    .user.offline { color: #666; }
+    .user .status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 10px;
+        animation: blink 1.5s infinite;
+    }
+    .status-dot.online { background-color: #0f0; }
+    .status-dot.away { background-color: yellow; }
+    .status-dot.offline {
+        background-color: gray;
+        animation: none;
+    }
+    .chat-tabs {
+        display: flex;
+        gap: 10px;
+        padding: 8px 10px;
+        border-bottom: 1px solid #222;
+        font-size: 0.9rem;
+    }
+    .chat-tabs button {
+        background: none;
+        border: none;
+        color: #21e6c1;
+        cursor: pointer;
+        padding: 4px 8px;
+    }
+    .chat-tabs button.active {
+        border-bottom: 2px solid #21e6c1;
+    }
+    .chat-box {
+        flex: 1;
+        border-top: 1px solid #222;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+    }
+    .chat-input {
+        border-top: 1px solid #222;
+        display: flex;
+        padding: 10px;
+        gap: 10px;
+    }
+    .chat-input input {
+        flex: 1;
+        padding: 8px;
+        border: none;
+        background-color: #222;
+        color: #fff;
+    }
+    .chat-input button {
+        background: none;
+        border: none;
+        color: #21e6c1;
+        font-size: 1.2rem;
+        cursor: pointer;
+    }
+    .settings-group { margin-bottom: 1rem; }
+    .settings-group h3 { margin-bottom: 0.5rem; }
+    .settings-group select,
+    .settings-group input {
+        width: 100%;
+        padding: 6px;
+        background-color: #222;
+        color: #fff;
+        border: none;
+    }
+    .flash-area .flash { margin: 6px 0; padding: 6px 10px; border-radius:6px; background:#111; }
+    .flash.error { background:#ff4d4d; color:#000; }
+    .flash.success { background:#21e6c1; color:#000; }
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+    }
+</style>
+</head>
+<body>
+
+<div class="flash-area">
+  {% with msgs = get_flashed_messages(with_categories=true) %}
+    {% if msgs %}{% for cat,msg in msgs %}
+      <div class="flash {{cat}}">{{ msg }}</div>
+    {% endfor %}{% endif %}
+  {% endwith %}
+</div>
+
+<div class="users-list" id="userList">
+  <div class="status-title">Users</div>
+  {% for u in users %}
+  <div class="user" data-id="{{ u.id }}">
+    <span><span class="status-dot {{'online' if u.status=='online' else 'offline'}}"></span> {{ u.username }}</span>
+    <span data-status="{{ u.id }}">{{ u.status }}</span>
+  </div>
+  {% endfor %}
+  <div style="margin-top:1rem;">
+    <button id="voiceRoomsBtn" style="background:none;border:1px solid #333;color:#21e6c1;padding:6px 10px;cursor:pointer;"
+            onclick="location.href='{{ url_for('voice_rooms') }}'">
+      🎙️ Voice Rooms
+    </button>
+  </div>
+</div>
+
+<div class="chat-area">
+  <div class="chat-tabs">
+    <button id="tabLobby" class="active">Lobby</button>
+    <button id="tabPrivate">Private</button>
+    <button id="lobbyVoiceBtn" title="Start lobby voice invite" style="margin-left:auto;">
+      <i class="fas fa-headset"></i>
+    </button>
+  </div>
+
+  <div class="chat-box" id="messages">
+    <div style="padding: 10px;">Welcome to the SaeedsChat Lobby</div>
+  </div>
+
+  <div class="chat-input">
+    <input id="chatInput" type="text" placeholder="Type your message..."/>
+    <button id="sendBtn" title="Send"><i class="fas fa-paper-plane"></i></button>
+    <button id="callBtn" title="Voice Call"><i class="fas fa-phone"></i></button>
+    <button id="videoBtn" title="Video Call"><i class="fas fa-video"></i></button>
+  </div>
+
+  <video id="localVideo" autoplay muted playsinline style="width:200px;display:none;border:1px solid #21e6c1"></video>
+  <video id="remoteVideo" autoplay playsinline style="width:200px;display:none;border:1px solid #21e6c1"></video>
+</div>
+
+<div class="profile-settings">
+  <div class="settings-group">
+    <h3>Edit Profile</h3>
+    <input type="text" placeholder="Username"/>
+    <input type="text" placeholder="Bio"/>
+  </div>
+  <div class="settings-group">
+    <h3>Notification</h3>
+    <label><input type="checkbox"/> Enable alerts</label>
+  </div>
+  <div class="settings-group">
+    <h3>Customize Chat</h3>
+    <select>
+      <option>Classic</option>
+      <option>Dark Blue</option>
+      <option>Sunset</option>
+      <option>Cyberpunk</option>
+      <option>Minimal White</option>
+      <option>Forest</option>
+    </select>
+  </div>
+  <div class="settings-group">
+    <h3>Account</h3>
+    <p>Rank: Pro</p>
+    <p>Role: Admin</p>
+    <p>Private Groups: 3</p>
+    <button style="margin-top:10px;" onclick="location.href='{{ url_for('logout') }}'">Logout</button>
+  </div>
+</div>
+
+<script>
+  window.ME = {{ me.id }};
+  window.ME_COINS = {{ me.coins }};
+</script>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script src="{{ url_for('static', filename='js/messenger.js') }}"></script>
+</body>
+</html>

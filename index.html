@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Messenger - Home</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background-color: #000;
+            color: #21e6c1;
+            font-family: 'Segoe UI', sans-serif;
+            overflow: hidden;
+        }
+
+        .header {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            z-index: 10;
+        }
+
+        .header a {
+            color: #21e6c1;
+            text-decoration: none;
+            font-weight: bold;
+            margin-left: 20px;
+            font-size: 1.1rem;
+            border: 2px solid #21e6c1;
+            padding: 8px 16px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .header a:hover {
+            background-color: #21e6c1;
+            color: #000;
+        }
+
+        .content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 3rem;
+            box-sizing: border-box;
+        }
+
+        .typewriter-text {
+            max-width: 800px;
+            font-size: 1.25rem;
+            line-height: 2rem;
+            white-space: pre-wrap;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 1.25rem;
+            background: #21e6c1;
+            animation: blink 1s step-start infinite;
+            margin-left: 3px;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+    </style>
+</head>
+<body><div class="flash-area">{% with msgs = get_flashed_messages(with_categories=true) %}{% if msgs %}{% for cat,msg in msgs %}<div class="flash {{cat}}">{{ msg }}</div>{% endfor %}{% endif %}{% endwith %}</div>
+<div class="header">
+<a href="login">Login</a>
+<a href="register">Register</a>
+</div>
+<div class="content">
+<div class="typewriter-text"><span id="typewriter"></span><span class="cursor"></span></div>
+</div>
+<script>
+        const text = `Step into the digital twilight—a space where masks fall away and you’re free to reveal just how strange you can be. Here, in our social labyrinth, you’ll find more than just fleeting text messages: engage in mysterious one-on-one chats, cast your voice into the abyss with group calls, or show your face to a room full of curious strangers who are equally eager to peer beyond the surface.
+
+Our platform is the perfect playground for your inner psyche, mixing anticipation with a hint of mischief. Who knows which connection might echo your oddest thoughts or challenge your deepest fears? Dive into conversations where anything—awkward laughs, haunting confessions, or spontaneous epiphanies—is just a click away.
+
+Behind every screen is another mind, hungry for intrigue, ready for the unknown. Welcome to the ultimate experiment in human connection—where the shadows talk back.`;
+
+        let i = 0;
+        const speed = 35;
+        const typewriter = document.getElementById("typewriter");
+
+        function type() {
+            if (i < text.length) {
+                typewriter.innerHTML += text.charAt(i);
+                i++;
+                setTimeout(type, speed);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", type);
+    </script>
+</body>
+</html>

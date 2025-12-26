@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Voice Rooms</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+</head>
+<body>
+  {% with msgs = get_flashed_messages(with_categories=true) %}
+    {% if msgs %}{% for cat,msg in msgs %}<div class="flash {{cat}}">{{ msg }}</div>{% endfor %}{% endif %}
+  {% endwith %}
+  <h1>🎙️ Voice Rooms</h1>
+  <a href="{{ url_for('messenger') }}">← Back to Messenger</a>
+  {% if me.is_admin %}
+  <div>
+    <input id="newRoomName" placeholder="Room name...">
+    <button id="createRoomBtn">Create Room</button>
+  </div>
+  {% endif %}
+  <div id="roomList">
+    {% for r in rooms %}
+      <div class="room-card" data-id="{{ r.id }}">
+        <span>{{ r.name }}</span>
+        <button class="joinBtn">Join</button>
+      </div>
+    {% endfor %}
+  </div>
+
+  <section id="activeRoom" style="display:none;">
+    <h2 id="roomTitle"></h2>
+    <div class="comments">
+      <div id="voiceComments" class="chat-box" style="height:180px;"></div>
+      <input id="roomCommentInput" placeholder="Comment...">
+      <button id="roomCommentSend">Send</button>
+    </div>
+    <button id="requestStageBtn">Request Stage</button>
+    <button id="leaveRoomBtn">Leave</button>
+  </section>
+
+  <script>window.ME={{ me.id }};</script>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script src="{{ url_for('static', filename='js/voice_rooms.js') }}"></script>
+</body>
+</html>

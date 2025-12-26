@@ -1,0 +1,182 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Chat with Saeed - Login</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<style>
+        html, body {
+            margin: 0; padding: 0;
+            height: 100%;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #000;
+        }
+
+        .container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .left, .right {
+            width: 50%;
+            height: 100%;
+        }
+
+        .left {
+            background-color: #00284d;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 3rem;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .logo {
+            color: #21e6c1;
+            font-weight: bold;
+            font-size: 1.2rem;
+            position: absolute;
+            top: 20px;
+            left: 30px;
+        }
+
+        .typewriter-container {
+            max-width: 80%;
+        }
+
+        .typewriter-text {
+            font-size: 1.5rem;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            line-height: 2rem;
+        }
+
+        .typewriter-text span.bold {
+            font-weight: bold;
+            font-smooth: always;
+            -webkit-font-smoothing: antialiased;
+            color: #21e6c1;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            background: #21e6c1;
+            height: 1.5rem;
+            animation: blink 1s step-start infinite;
+            margin-left: 5px;
+        }
+
+        .right {
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+            padding: 2rem;
+        }
+
+        form {
+            width: 100%;
+            max-width: 360px;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        input {
+            padding: 12px;
+            border: none;
+            border-bottom: 2px solid #21e6c1;
+            background: transparent;
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        button {
+            padding: 12px;
+            background: transparent;
+            color: #21e6c1;
+            font-size: 1rem;
+            border: 2px solid #21e6c1;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #21e6c1;
+            color: #000;
+        }
+
+        a {
+            color: #21e6c1;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body><div class="flash-area">{% with msgs = get_flashed_messages(with_categories=true) %}{% if msgs %}{% for cat,msg in msgs %}<div class="flash {{cat}}">{{ msg }}</div>{% endfor %}{% endif %}{% endwith %}</div>
+<div class="container">
+<div class="left">
+<div class="logo">Chat with Saeed</div>
+<div class="typewriter-container">
+<div class="typewriter-text" id="typewriter"></div><div class="cursor"></div>
+</div>
+</div>
+<div class="right">
+<form action="{{ url_for('login') }}" method="POST">
+<input name="username" placeholder="Username" required="" type="text"/>
+<input name="password" placeholder="Password" required="" type="password"/>
+<button type="submit">Login</button>
+<a href="register">Don't have an account? Register</a>
+</form>
+</div>
+</div>
+<script>
+const texts = [
+  "<span class='bold'>Secure</span> conversations start here. Share without fear.",
+  "<span class='bold'>Private</span> messages. Real-time chats. For Saeed's circle.",
+  "<span class='bold'>Safe</span> zone where secrets are revealed only to friends.",
+];
+    let idx = 0, charIdx = 0, isDeleting = false;
+
+    function typeLoop() {
+        const textEl = document.getElementById('typewriter');
+        const currentText = texts[idx];
+        const visibleText = currentText.slice(0, charIdx);
+        textEl.innerHTML = visibleText;
+
+        if (!isDeleting && charIdx < currentText.length) {
+            charIdx++;
+            setTimeout(typeLoop, 80);
+        } else if (isDeleting && charIdx > 0) {
+            charIdx--;
+            setTimeout(typeLoop, 45);
+        } else {
+            isDeleting = !isDeleting;
+            if (!isDeleting) idx = (idx + 1) % texts.length;
+            setTimeout(typeLoop, 1500);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", typeLoop);
+</script>
+</body>
+</html>
